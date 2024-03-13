@@ -1,0 +1,437 @@
+// I. Warshall’s Algo 
+
+
+
+#include <iostream> 
+#include <vector> 
+using namespace std; 
+void warshall(int n, vector<vector<int>>& graph) { 
+for (int k = 0; k < n; ++k) { 
+for (int i = 0; i < n; ++i) { 
+for (int j = 0; j < n; ++j) { 
+if (graph[i][j] == 0 && (graph[i][k] && graph[k][j])) 
+graph[i][j] = 1; 
+} 
+} 
+} 
+} 
+int main() { 
+int n = 4; // Number of vertices 
+vector<vector<int>> graph = { 
+{0, 1, 0, 0}, 
+{0, 0, 0, 1}, 
+{0, 0, 0, 0}, 
+{1, 0, 1, 0} 
+}; 
+warshall(n, graph); 
+cout << "Transitive closure matrix:" << endl; 
+for (int i = 0; i < n; ++i) { 
+for (int j = 0; j < n; ++j) { 
+cout << graph[i][j] << " "; 
+} 
+cout << endl; 
+} 
+return 0; 
+} 
+
+
+
+//   II. Floyd’s Algo 
+
+
+
+#include <iostream> 
+#include <vector> 
+using namespace std; 
+const int INF = 9999; // Infinity 
+void floyd(int n, vector<vector<int>>& graph) { 
+for (int k = 0; k < n; ++k) { 
+for (int i = 0; i < n; ++i) { 
+for (int j = 0; j < n; ++j) { 
+if (graph[i][k] + graph[k][j] < graph[i][j]) 
+graph[i][j] = graph[i][k] + graph[k][j]; 
+} 
+} 
+} 
+} 
+int main() { 
+int n = 4; // Number of vertices 
+vector<vector<int>> graph = { 
+{0, 5, INF, 10}, 
+{INF, 0, 3, INF}, 
+{INF, INF, 0, 1}, 
+{INF, INF, INF, 0} 
+}; 
+floyd(n, graph); 
+cout << "Shortest distances between every pair of vertices:" << endl; 
+for (int i = 0; i < n; ++i) { 
+for (int j = 0; j < n; ++j) { 
+if (graph[i][j] == INF) 
+cout << "INF "; 
+else 
+cout << graph[i][j] << " "; 
+} 
+cout << endl; 
+} 
+return 0; 
+}
+
+
+//Dijkstra's Algorithm 
+
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    int c[15][15], n, u, v, d[15], s[15], i, j, min;
+    cout << "Enter number of vertices: ";
+    cin >> n;
+    cout << "\nEnter the cost matrix:\n";
+    for (i = 1; i <= n; i++) {
+        for (j = 1; j <= n; j++) {
+            cin >> c[i][j];
+        }
+    }
+    cout << "\nEnter the source vertex: ";
+    cin >> v;
+    for (i = 1; i <= n; i++) {
+        d[i] = c[v][i];
+        s[i] = 0; // minimum spanning array of all the min cost vertices
+    }
+    s[v] = 1;
+    d[v] = 0;
+
+    for (int num = 1; num <= n - 1; num++) { // Changed from //bada for loop to normal for loop
+        min = 999;
+        for (i = 1; i <= n; i++) {
+            if (s[i] == 0 && d[i] < min) {
+                min = d[i];
+                u = i;
+            }
+        }
+        s[u] = 1;
+
+        // Update distances for remaining vertices
+        for (i = 1; i <= n; i++) {
+            if (s[i] == 0 && d[u] + c[u][i] < d[i]) {
+                d[i] = d[u] + c[u][i];
+            }
+        }
+    }
+
+    cout << "Shortest path from the source vertex " << v << ":\n";
+    for (int i = 1; i <= n; i++) {
+        cout << v << " --> " << i << " = " << d[i] << endl;
+    }
+    return 0;
+}
+
+
+/*
+0 10 3 999
+10 0 1 10
+3 1 0 5
+999 10 5 0
+
+*/
+
+
+
+//  PRIMS
+
+
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    int c[10][10] = {0}, near[10], n, min = 999, u, v, s = 0;
+    int t[2][3];
+
+    cout << "Enter no of vertices: ";
+    cin >> n;
+
+    for (int i = 1; i <= n; i++)
+        near[i] = 999;
+
+    cout << "Enter cost: ";
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            cin >> c[i][j];
+
+    for (int i = 1; i <= n; i++)
+        for (int j = i; j <= n; j++)
+            if (c[i][j] < min && c[i][j] != 0) {
+                u = i;
+                v = j;
+                min = c[i][j];
+            }
+
+    cout << u << "-->" << v << "=" << c[u][v];
+    s = s + c[u][v];
+    near[u] = 0;
+    near[v] = 0;
+
+    for (int i = 1; i <= n; i++) {
+        if (near[i] != 0) {
+            if (c[i][u] < c[i][v]) {
+                near[i] = u;
+            } else {
+                near[i] = v;
+            }
+        }
+    }
+
+    for (int num = 1; num <= n - 1; num++) {
+        min = 999;
+        for (int i = 1; i <= n; i++) {
+            if (near[i] != 0 && min > c[i][near[i]]) {
+                min = c[i][near[i]];
+                u = i;
+            }
+        }
+
+        cout << "\n" << near[u] << "-->" << u << "=" << c[u][near[u]];
+        s = s + c[u][near[u]];
+        near[u] = 0;
+
+        for (int i = 1; i <= n; i++) {
+            if (near[i] != 0 && c[i][near[i]] > c[i][u]) {
+                near[i] = u;
+            }
+        }
+    }
+
+    cout << "\nMinimum spanning tree: " << s;
+
+    return 0;
+}
+
+
+
+/*
+0 2 0 6 0
+2 0 3 8 5
+0 3 0 0 7
+6 8 0 0 9
+0 5 7 9 0
+*/
+
+
+
+
+
+// PRIMS 
+
+
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+ 
+typedef pair<int,int> pii;
+ 
+
+int spanningTree(int V, int E, int edges[][3])
+{   
+    
+    vector<vector<int>> adj[V];
+     
+   
+    for (int i = 0; i < E; i++) {
+        int u = edges[i][0];
+        int v = edges[i][1];
+        int wt = edges[i][2];
+        adj[u].push_back({v, wt});
+        adj[v].push_back({u, wt});
+    }
+     
+    
+    priority_queue<pii, vector<pii>, greater<pii>> pq;
+     
+   
+    vector<bool> visited(V, false);
+     
+   
+    int res = 0;
+     
+    // Start with vertex 0
+    pq.push({0, 0});
+     
+   
+    while(!pq.empty()){
+        auto p = pq.top();
+        pq.pop();
+         
+        int wt = p.first;  // Weight of the edge
+        int u = p.second;  
+         
+        if(visited[u] == true){
+            continue; 
+        }
+         
+        res += wt;  
+        visited[u] = true;  
+         
+        // Explore the adjacent vertices
+        for(auto v : adj[u]){
+            
+            if(visited[v[0]] == false){
+                pq.push({v[1], v[0]});  
+            }
+        }
+    }
+     
+    return res;  
+}
+ 
+int main()
+{
+    int graph[][3] = {{0, 1, 5},
+                      {1, 2, 3},
+                      {0, 2, 1}};
+ 
+    // Function call
+    cout << spanningTree(3, 3, graph) << endl;
+ 
+    return 0;
+}
+
+// KRUSHKAL ALGORITHM
+
+
+
+
+
+#include <bits/stdc++.h>
+using namespace std;
+ 
+#define V 5
+int parent[V];
+ 
+
+int find(int i)
+{
+    while (parent[i] != i)
+        i = parent[i];
+    return i;
+}
+ 
+
+void union1(int i, int j)
+{
+    int a = find(i);
+    int b = find(j);
+    parent[a] = b;
+}
+ 
+
+void kruskalMST(int cost[][V])
+{
+    int mincost = 0;
+ 
+
+    for (int i = 0; i < V; i++)
+        parent[i] = i;
+ 
+
+    int edge_count = 0;
+    while (edge_count < V - 1) {
+        int min = INT_MAX, a = -1, b = -1;
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                if (find(i) != find(j) && cost[i][j] < min) {
+                    min = cost[i][j];
+                    a = i;
+                    b = j;
+                }
+            }
+        }
+ 
+        union1(a, b);
+        printf("Edge %d:(%d, %d) cost:%d \n",
+               edge_count++, a, b, min);
+        mincost += min;
+    }
+    printf("\n Minimum cost= %d \n", mincost);
+}
+ 
+// driver program to test above function
+int main()
+{
+    /* Let us create the following graph
+          2    3
+      (0)--(1)--(2)
+       |   / \   |
+      6| 8/   \5 |7
+       | /     \ |
+      (3)-------(4)
+            9          */
+    int cost[][V] = {
+        { INT_MAX, 2, INT_MAX, 6, INT_MAX },
+        { 2, INT_MAX, 3, 8, 5 },
+        { INT_MAX, 3, INT_MAX, INT_MAX, 7 },
+        { 6, 8, INT_MAX, INT_MAX, 9 },
+        { INT_MAX, 5, 7, 9, INT_MAX },
+    };
+ 
+    // Print the solution
+    kruskalMST(cost);
+ 
+    return 0;
+}
+
+
+
+
+
+// N queen 
+
+#include<iostream>
+#include<cmath>
+using namespace std;
+
+int count=0,a[100];
+
+bool place(int k, int i){
+    int j;
+    for(j=1;j<k;j++){
+        if(a[j]==i || abs(a[j]-i)==abs(j-k)) return false;
+    }
+    return true;
+}
+
+void nqueen(int k, int n){
+    for(int i=1;i<=n;i++){
+        if(place(k,i)){
+            //place the queen and check if k==n then print the sollution
+            a[k]=i;
+            if(k==n){
+                count++;
+                cout<<"\n Sollution: "<<count<<":\n";
+                for(int j=1;j<=n;j++){
+                    for(int p=1;p<=n;p++){
+                        cout<<((a[j]==p)? 'Q':'0')<<" ";
+                    }
+                    cout<<"\n";
+                }
+            }else{
+            nqueen(k+1,n);
+        }
+        }
+        
+    }
+}
+
+int main(){
+    int n;
+    cout<<"\t\t\t N queen Problem:";
+    cout<<"\n Enter the total number of Queens: ";
+    cin>>n;
+    nqueen(1,n);
+
+
+}
+
